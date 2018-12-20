@@ -4,9 +4,9 @@ ADASYN: Adaptive Synthetic Sampling Approach for Imbalanced Learning
 Used to adaptively generate synthetic 
 
 Developed by Rui Nian
-Date of last edit: December 17th, 2018
+Date of last edit: December 20th, 2018
 
-Patch Notes: -
+Patch Notes: Updated Doc Strings
 
 Known Issues: -
 """
@@ -24,7 +24,12 @@ np.random.seed(seed)
 class MinMaxNormalization:
 
     """
-    axis:  0 is by columns, 1 is by rows
+    Min-Max Normalization.  Was using in conjunction of ADASYN to test results
+
+        data:  Data to be normalized
+        axis:  0 is by columns, 1 is by rows
+
+     returns:  Normalized data
     """
 
     def __init__(self, data, axis=0):
@@ -63,14 +68,14 @@ def adasyn(X, y, beta, K, threshold=1):
          ms:  Amount of data in minority class
          ml:  Amount of data in majority class
         clf:  k-NN classifier model
-         d:  Ratio of minority : majority
-      beta:  Degree of imbalance desired
-         G:  Amount of data to generate
-        Ri:  Ratio of majority data / neighbourhood size.  Larger ratio means the neighbourhood is harder to learn,
-             thus generating more data.
+          d:  Ratio of minority : majority
+       beta:  Degree of imbalance desired
+          G:  Amount of data to generate
+         Ri:  Ratio of majority data / neighbourhood size.  Larger ratio means the neighbourhood is harder to learn,
+              thus generating more data.
      Minority_per_xi:  All the minority data's index by neighbourhood
-    Rhat_i:  Normalized Ri, where sum = 1
-        Gi:  Amount of data to generate per neighbourhood (indexed by neighbourhoods corresponding to xi)
+     Rhat_i:  Normalized Ri, where sum = 1
+         Gi:  Amount of data to generate per neighbourhood (indexed by neighbourhoods corresponding to xi)
 
     Returns
          -----
@@ -181,6 +186,6 @@ if __name__ == "__main__":
     X = X.astype('float32')
     y = df.iloc[:, 0].values
 
-    Syn_data, neighbourhoods, Ri = adasyn(X, y, beta=0.1, K=20, threshold=1)
-    np.savetxt(path + 'data/syn_10_data_plc.csv', Syn_data, delimiter=',')
-    print("Model saved in: {}".format(path + 'data/syn_10_data_plc.csv'))
+    Syn_data, neighbourhoods, Ri = adasyn(X, y, beta=0.1, K=10000, threshold=1)
+    # np.savetxt(path + 'data/syn_10_data_plc.csv', Syn_data, delimiter=',')
+    # print("Model saved in: {}".format(path + 'data/syn_10_data_plc.csv'))
