@@ -1,9 +1,23 @@
+"""
+ADASYN: Adaptive Synthetic Sampling Approach for Imbalanced Learning
+
+Used to adaptively generate synthetic 
+
+Developed by Rui Nian
+Date of last edit: December 17th, 2018
+
+Patch Notes: -
+
+Known Issues: -
+"""
+
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn import neighbors
 
-seed = 5
+seed = 10
 np.random.seed(seed)
 
 
@@ -28,7 +42,7 @@ class MinMaxNormalization:
 
 
 def adasyn(X, y, beta, K, threshold=1):
-    
+
     """
     Adaptively generating minority data samples according to their distributions.
     More synthetic data is generated for minority class samples that are harder to learn.
@@ -63,7 +77,7 @@ def adasyn(X, y, beta, K, threshold=1):
   syn_data:  New synthetic minority data created
     """
 
-    ms = sum(y)
+    ms = int(sum(y))
     ml = len(y) - ms
 
     clf = neighbors.KNeighborsClassifier()
@@ -88,7 +102,7 @@ def adasyn(X, y, beta, K, threshold=1):
         # Returns indices of the closest neighbours, and return it as a list
         neighbours = clf.kneighbors(xi, n_neighbors=K, return_distance=False)[0]
         # Skip classifying itself as one of its own neighbours
-        neighbours = neighbours[1:]
+        # neighbours = neighbours[1:]
 
         # Count how many belongs to the majority class
         count = 0
@@ -125,6 +139,7 @@ def adasyn(X, y, beta, K, threshold=1):
     for i in range(ms):
         xi = X[i, :].reshape(1, -1)
         for j in range(Gi[i]):
+            # If the minority list is not empty
             if Minority_per_xi[i]:
                 index = np.random.choice(Minority_per_xi[i])
                 xzi = X[index, :].reshape(1, -1)
@@ -137,20 +152,35 @@ def adasyn(X, y, beta, K, threshold=1):
         a = clf.predict(values)
         test.append(a)
 
-    print("Using the old classifier, {} out of {} would be classified as minority.".format(sum(test), G))
+    print("Using the old classifier, {} out of {} would be classified as minority.".format(np.sum(test), len(syn_data)))
 
-    return syn_data
+    # Build the data matrix
+    data = []
+    for values in syn_data:
+        data.append(values[0])
+
+    print("{} amount of minority class samples generated".format(len(data)))
+
+    # Concatenate the positive labels with the newly made data
+    labels = np.ones([len(data), 1])
+    data = np.concatenate([labels, data], axis=1)
+
+    # Concatenate with old data
+    org_data = np.concatenate([y.reshape(-1, 1), X], axis=1)
+    data = np.concatenate([data, org_data])
+
+    return data, Minority_per_xi, Ri
 
 
-df = pd.read_csv('breast-cancer-wisconsin.data.txt')
-df.drop(['id'], axis=1, inplace=True)
-df.replace('?', -99999, inplace=True)
-df['class'].replace([2, 4], [0, 1], inplace=True)
-df.sort_values(by=['class'], ascending=False, inplace=True)
-df.reset_index(drop=True, inplace=True)
+if __name__ == "__main__":
+    path = '/home/rui/Documents/logistic_regression_tf/'
+    df = pd.read_csv(path + 'data/10_data_plc.csv')
+    df.reset_index(drop=True, inplace=True)
 
-X = df.drop(['class'], axis=1).values
-X = X.astype('int')
-y = df['class'].values
+    X = df.drop(df.columns[0], axis=1).values
+    X = X.astype('float32')
+    y = df.iloc[:, 0].values
 
-Syn_data = adasyn(X, y, beta=1, K=10, threshold=1)
+    Syn_data, neighbourhoods, Ri = adasyn(X, y, beta=0.1, K=20, threshold=1)
+    np.savetxt(path + 'data/syn_10_data_plc.csv', Syn_data, delimiter=',')
+    print("Model saved in: {}".format(path + 'data/syn_10_data_plc.csv'))
