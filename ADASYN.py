@@ -179,13 +179,12 @@ def adasyn(X, y, beta, K, threshold=1):
 
 if __name__ == "__main__":
     path = '/home/rui/Documents/logistic_regression_tf/'
-    df = pd.read_csv(path + 'data/10_data_plc.csv')
+    df = pd.read_csv(path + 'data/10_data_plc_1500.csv')
     df.reset_index(drop=True, inplace=True)
 
     X = df.drop(df.columns[0], axis=1).values
     X = X.astype('float32')
     y = df.iloc[:, 0].values
 
-    Syn_data, neighbourhoods, Ri = adasyn(X, y, beta=0.1, K=10000, threshold=1)
-    # np.savetxt(path + 'data/syn_10_data_plc.csv', Syn_data, delimiter=',')
-    # print("Model saved in: {}".format(path + 'data/syn_10_data_plc.csv'))
+    Syn_data, neighbourhoods, Ri = adasyn(X, y, beta=0.08, K=800, threshold=1)
+    np.savetxt(path + 'data/syn_10_data_plc_1500.csv', Syn_data, delimiter=',')
