@@ -178,7 +178,12 @@ def adasyn(X, y, beta, K, threshold=1):
 
 
 if __name__ == "__main__":
-    path = '/home/rui/Documents/logistic_regression_tf/'
+    # Ubuntu 18.04
+    # path = '/home/rui/Documents/logistic_regression_tf/'
+
+    # MacOS
+    path = '/Users/ruinian/Documents/Logistic_Reg_TF/'
+
     df = pd.read_csv(path + 'data/10_data_plc_1500.csv')
     df.reset_index(drop=True, inplace=True)
 
@@ -187,4 +192,4 @@ if __name__ == "__main__":
     y = df.iloc[:, 0].values
 
     Syn_data, neighbourhoods, Ri = adasyn(X, y, beta=0.08, K=800, threshold=1)
-    np.savetxt(path + 'data/syn_10_data_plc_1500.csv', Syn_data, delimiter=',')
+    np.savetxt(path + 'data/syn_10_data.csv', Syn_data, delimiter=',')
