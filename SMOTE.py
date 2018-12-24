@@ -54,7 +54,7 @@ neighborhood:  All minority example indices per neighbourhood
     np.random.seed(seed)
 
     # Step 1.  Define minority and majority class examples, and minority class features
-    ms = sum(y)
+    ms = int(sum(y))
     min_cls = X[0:ms, :]
 
     # Step 2.  If N is less than 100, then only a random percent will be smoted.
@@ -128,20 +128,21 @@ neighborhood:  All minority example indices per neighbourhood
     return data, neighborhoods
 
 
-df = pd.read_csv("test_datasets/breast-cancer-wisconsin.data.txt")
-# Remove missing values
-df.replace('?', -99999, inplace=True)
-# Remove ID column
-df.drop(['id'], axis=1, inplace=True)
-df.iloc[:, 5] = pd.to_numeric(df.iloc[:, 5])
-# Replace labels booleans column with 0 and 1
-df.loc[:, 'class'].replace(2, 0, inplace=True)
-df.loc[:, 'class'].replace(4, 1, inplace=True)
-# Sort labels, with minority class on top
-df.sort_values(['class'], ascending=False, inplace=True)
-df.reset_index(drop=True, inplace=True)
+if __name__ == "__main__":
+    df = pd.read_csv("test_datasets/breast-cancer-wisconsin.data.txt")
+    # Remove missing values
+    df.replace('?', -99999, inplace=True)
+    # Remove ID column
+    df.drop(['id'], axis=1, inplace=True)
+    df.iloc[:, 5] = pd.to_numeric(df.iloc[:, 5])
+    # Replace labels booleans column with 0 and 1
+    df.loc[:, 'class'].replace(2, 0, inplace=True)
+    df.loc[:, 'class'].replace(4, 1, inplace=True)
+    # Sort labels, with minority class on top
+    df.sort_values(['class'], ascending=False, inplace=True)
+    df.reset_index(drop=True, inplace=True)
 
-X = df.iloc[:, 0:-1].values
-y = df.iloc[:, -1].values
+    X = df.iloc[:, 0:-1].values
+    y = df.iloc[:, -1].values
 
-Syn_data, _ = smote(X, y, N=50, K=10)
+    Syn_data, _ = smote(X, y, N=50, K=10)
