@@ -120,7 +120,8 @@ def adasyn(X, y, beta, K, threshold=1):
         # Find all the minority examples
         minority = []
         for value in neighbours:
-            if value <= ms:
+            # Shifted back 1 because indices start at 0
+            if value <= ms - 1:
                 minority.append(value)
 
         Minority_per_xi.append(minority)
