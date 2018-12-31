@@ -57,7 +57,7 @@ def adasyn(X, y, beta, K, threshold=1):
          -----
          X:  Input features, X, sorted by the minority examples on top.  Minority example should also be labeled as 1
          y:  Labels, with minority example labeled as 1
-      beta:  Degree of imbalance desired.  A 1 means the positive and negative examples are perfectly balanced.
+      beta:  Degree of imbalance desired.  Neg:Pos. A 1 means the positive and negative examples are perfectly balanced.
          K:  Amount of neighbours to look at
  threshold:  Amount of imbalance rebalance required for algorithm
 
@@ -132,7 +132,7 @@ def adasyn(X, y, beta, K, threshold=1):
         rhat_i = ri / sum(Ri)
         Rhat_i.append(rhat_i)
 
-    assert (sum(Rhat_i) > 0.99)
+    assert(sum(Rhat_i) > 0.99)
 
     # Step 2d, calculate the number of synthetic data examples that will be generated for each minority example
     Gi = []
@@ -183,14 +183,14 @@ if __name__ == "__main__":
     # path = '/home/rui/Documents/logistic_regression_tf/'
 
     # MacOS
-    path = '/Users/ruinian/Documents/Logistic_Reg_TF/'
+    path = '/Users/ruinian/Documents/Willowglen/'
 
-    df = pd.read_csv(path + 'data/10_data_plc_1500.csv')
+    df = pd.read_csv(path + 'data/10_data_20.csv')
     df.reset_index(drop=True, inplace=True)
 
     X = df.drop(df.columns[0], axis=1).values
     X = X.astype('float32')
     y = df.iloc[:, 0].values
 
-    Syn_data, neighbourhoods, Ri = adasyn(X, y, beta=0.08, K=800, threshold=1)
-    np.savetxt(path + 'data/syn_10_data.csv', Syn_data, delimiter=',')
+    Syn_data, neighbourhoods, Ri = adasyn(X, y, beta=0.05, K=15, threshold=1)
+    np.savetxt(path + 'data/syn_10_data_20.csv', Syn_data, delimiter=',')
