@@ -3,7 +3,7 @@ Statistical Event Detection Patch 1.1
 
 Patch notes:  Initialized the file
 
-Date of last edit: Jan-14th-2018
+Date of last edit: Jan-15th-2018
 Rui Nian
 
 Current issues: -
@@ -97,8 +97,8 @@ class AnomalyDetection:
          outlier_count: amount of anomalous data in each column
                   mean: Mean of current data
                    std: Standard deviation of current data
-               columns: Returns columns that mean and std were calculated for. During live operations, those EXACT columns
-                        must be called.
+               columns: Returns columns that mean and std were calculated for. During live operations, those EXACT
+                        columns must be called.
         """
 
         # Do Z-score on whole data
@@ -118,7 +118,7 @@ class AnomalyDetection:
                 if j % 100 == 0:
                     print("Currently on column {}.".format(j))
                 self.z_score_labels.iloc[:, j] = [1 if abs((y - self.mean[j]) / self.std[j])
-                                                       >= threshold else 0 for y in data.iloc[:, j]]
+                                                  >= threshold else 0 for y in data.iloc[:, j]]
 
         # Z-score on selected columns
         else:
@@ -167,8 +167,8 @@ class AnomalyDetection:
          outlier_count: amount of anomalous data in each column
                 median: Median of current data
                    mad: Mean absolute deviation calculated based on current data
-               columns: Returns columns that mean and std were calculated for. During live operations, those EXACT columns
-                        must be called.
+               columns: Returns columns that mean and std were calculated for. During live operations, those EXACT
+                        columns must be called.
         """
 
         self.mad = []
@@ -197,7 +197,7 @@ class AnomalyDetection:
                 if j % 100 == 0:
                     print("Currently on column {} for modified Z calculations.".format(j))
                 self.mod_z_score_labels.iloc[:, j] = [1 if abs(0.6745 * (y - self.median[j]) / self.mad[j]) >
-                                                           threshold else 0 for y in data.iloc[:, j]]
+                                                      threshold else 0 for y in data.iloc[:, j]]
 
                 outlier_count = self.mod_z_score_labels.sum()
 
@@ -220,7 +220,7 @@ class AnomalyDetection:
             for i, col in enumerate(columns):
                 median = data.median(axis=0)[col]
                 self.mod_z_score_labels.loc[:, col + "_label"] = [1 if abs(0.6745 * (y - median) / self.mad[i]) >
-                                                                       threshold else 0 for y in data.loc[:, col]]
+                                                                  threshold else 0 for y in data.loc[:, col]]
             outlier_count = self.mod_z_score_labels.sum()
 
             data = pd.concat([self.mod_z_score_labels, data], axis=1)
@@ -242,8 +242,8 @@ class AnomalyDetection:
 
          outlier_count: amount of anomalous data in each column
                 bounds: Upper and lower bounds of outliers
-               columns: Returns columns that mean and std were calculated for. During live operations, those EXACT columns
-                        must be called.
+               columns: Returns columns that mean and std were calculated for. During live operations, those EXACT
+                        columns must be called.
         """
 
         # If columns is not given
@@ -340,8 +340,8 @@ class LiveAnomalyDetection:
         self.mod_z_score_labels = None
 
         # IQR Methods
-        self.quartiles = None
         self.bounds = None
+        self.iqr_outliers = None
 
     def live_z_score(self, data, mean, std, threshold, columns=None):
         """
@@ -363,7 +363,7 @@ class LiveAnomalyDetection:
 
         # If no unique columns was passed, 
         if columns is None:
-            # Ensure there are enough means for every column
+            # Ensure shape compatibility
             assert(data.shape[1] == len(mean))
             assert(data.shape[1] == len(std))
 
@@ -378,14 +378,14 @@ class LiveAnomalyDetection:
                 if j % 100 == 0:
                     print("Currently on column {}.".format(j))
                 self.z_score_labels.iloc[:, j] = [1 if abs((y - self.mean[j]) / self.std[j])
-                                                       >= threshold else 0 for y in data.iloc[:, j]]
+                                                  >= threshold else 0 for y in data.iloc[:, j]]
         
         # If unique columns was given        
         else:
-            # Ensure there are enough means for every column
+            # Ensure shape compatibility
             assert(len(columns) == len(mean))
-            assert(len(columns == len(std))
-            
+            assert(len(columns) == len(std))
+
             # Name of columns
             names = deepcopy(columns)
             for i, name in enumerate(names):
@@ -393,10 +393,8 @@ class LiveAnomalyDetection:
 
             self.z_score_labels = pd.DataFrame(np.zeros((data.shape[0], len(columns))), columns=names)
 
-            for col in columns:
-                mean = data.mean(axis=0)[col]
-                std = data.std(axis=0)[col]
-                self.z_score_labels.loc[:, col + "_label"] = [1 if abs((y - mean) / std) > threshold
+            for i, col in enumerate(columns):
+                self.z_score_labels.loc[:, col + "_label"] = [1 if abs((y - mean[i]) / std[i]) > threshold
                                                               else 0 for y in data.loc[:, col]]
                    
         # Concatenate the labels with the features
@@ -419,6 +417,48 @@ class LiveAnomalyDetection:
             ---
                   data: Labeled data
         """
+
+        self.median = median
+        self.mad = mad
+
+        # Do modified Z-score on whole data
+        if columns is None:
+            # Ensure shape compatibility
+            assert(data.shape[1] == len(median))
+            assert(data.shape[1] == len(mad))
+
+            # Make names for each label column
+            names = list(data)
+
+            for i, name in enumerate(names):
+                names[i] = name + "_label"
+
+            self.mod_z_score_labels = pd.DataFrame(np.zeros(data.shape), columns=names)
+
+            for j in range(data.shape[1]):
+                if j % 100 == 0:
+                    print("Currently on column {} for modified Z calculations.".format(j))
+                self.mod_z_score_labels.iloc[:, j] = [1 if abs(0.6745 * (y - self.median[j]) / self.mad[j]) >
+                                                      threshold else 0 for y in data.iloc[:, j]]
+
+        else:
+            # Ensure shape compatibility
+            assert(len(columns) == len(median))
+            assert(len(columns) == len(mad))
+
+            # Make names for each label column
+            names = deepcopy(columns)
+
+            for i, name in enumerate(names):
+                names[i] = name + "_label"
+
+            self.mod_z_score_labels = pd.DataFrame(np.zeros((data.shape[0], len(columns))), columns=names)
+
+            for i, col in enumerate(columns):
+                self.mod_z_score_labels.loc[:, col + "_label"] = [1 if abs(0.6745 * (y - self.median[i]) / self.mad[i])
+                                                                  > threshold else 0 for y in data.loc[:, col]]
+
+        data = pd.concat([self.mod_z_score_labels, data], axis=1)
         
         return data
     
@@ -435,9 +475,45 @@ class LiveAnomalyDetection:
             ---
                   data: Labeled data
         """
+
+        self.bounds = bounds
+
+        if columns is None:
+            # Ensure shapes are compatible
+            assert(data.shape[1] == len(bounds))
+
+            names = list(data)
+            for i, name in enumerate(names):
+                names[i] = name + "_label"
+
+            self.iqr_outliers = pd.DataFrame(np.zeros(data.shape), columns=names)
+
+            # Outliers calculation
+            for j in range(data.shape[1]):
+                if j % 100 == 0:
+                    print("On {}th column.".format(j))
+                self.iqr_outliers.iloc[:, j] = [1 if (y < self.bounds[0, j] or y > self.bounds[1, j]) else 0
+                                                for y in data.iloc[:, j]]
+
+        # If a unique set of columns is given
+        else:
+            # Ensure shapes are compatible
+            assert(data.shape[1] == len(bounds))
+
+            names = deepcopy(columns)
+            for i, name in enumerate(names):
+                names[i] = name + "_label"
+
+            self.iqr_outliers = pd.DataFrame(np.zeros((data.shape[0], len(columns))), columns=names)
+
+            # Outlier calculation
+            for i, col in enumerate(columns):
+                self.iqr_outliers.loc[:, col + "_label"] = [1 if (y < self.bounds[0, i] or y > self.bounds[1, i]) else 0
+                                                            for y in data.loc[:, col]]
+
+        data = pd.concat([self.iqr_outliers, data], axis=1)
         
         return data
-    
 
 
 if __name__ == "__main__":
@@ -446,7 +522,8 @@ if __name__ == "__main__":
     Data = pd.read_csv('filtered_data/data.csv')
     print('The original data |has {} training examples'.format(data.shape[0]))
 
-    # Sample a subset of the data to be representative of the whole data set, mainly used to save memory for Jupyter files
+    # Sample a subset of the data to be representative of the whole data set, mainly used to save memory for
+    # Jupyter files
     Data.sort_index(inplace=True)
     Data.reset_index(drop=True, inplace=True)
     print('The sampled data has {} examples and {} features.'.format(Data.shape[0], Data.shape[1]))
@@ -455,15 +532,17 @@ if __name__ == "__main__":
     stat_analysis = AnomalyDetection()
 
     # data_z is the new output file [Labels | Features] using Z score, anomaly_count_z is the amount of anomalous data
-    data_z, count_z, mean, std_dev, cols_z, thres_z = stat_analysis.z_score_method(data, columns=['175643344_630', '175643348_630'])
+    data_z, count_z, Mean, std_dev, cols_z, thres_z = stat_analysis.z_score_method(data, columns=['175643344_630',
+                                                                                                  '175643348_630'])
 
-    # data_modz is the new file [Labels | Features] using mod Z score, anomaly_count_modz is the amount of anomalous data
-    data_modz, count_modz, median, MAD, cols_modz, thres_modz = stat_analysis.mod_z_method(data, columns=['175643269_630', '175643348_630'])
+    # data_modz is the new file [Labels | Features] using mod Z score, anomaly_count_modz is the amount of
+    # anomalous data
+    data_modz, count_modz, Median, MAD, cols_modz, thres_modz = stat_analysis.mod_z_method(data,
+                                                                                           columns=['175643269_630',
+                                                                                                    '175643348_630'])
 
     # data_iqr is the new output file [Labels | Features] using IQR, anomaly_count_iqr is the amount of anomalous data
-    data_iqr, count_iqr, bounds, cols_iqr = stat_analysis.iqr_method(data, columns=['175643367_630', '175643368_630'])
+    data_iqr, count_iqr, Bounds, cols_iqr = stat_analysis.iqr_method(data, columns=['175643367_630', '175643368_630'])
                    
     # Live anomaly detection
     live_stat_analysis = LiveAnomalyDetection()
-                   
-                   

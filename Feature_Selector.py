@@ -3,7 +3,7 @@ Feature Selector Class for Willowglen Project
 
 Rui Nian
 
-Last Updated: Jan-14-2018
+Last Updated: Jan-15-2018
 """
 
 
@@ -317,8 +317,8 @@ class FeatureSelector:
         """
         Removes binary, trinary, etc. columns that are mostly one value
 
-        threshold: % of total being equal to 1.  For a column with 100 examples, at a threshold of 0.03 (3%), any columns
-        with less than 3% of values being 1 or greater than 97% of values being 1 will be set for deletion.
+        threshold: % of total being equal to 1.  For a column with 100 examples, at a threshold of 0.03 (3%), any
+        columns with less than 3% of values being 1 or greater than 97% of values being 1 will be set for deletion.
 
         DOES NOT FILTER OUT MULTI-CLASS CATEGORIES AT THE MOMENT
         """
@@ -418,8 +418,8 @@ class FeatureSelector:
         """
         Removes the columns set for removal with accordance to the specific method.
 
-        Methods: Delete all features identified with this particular method, if all is passed, deletes all columns in the
-                 removal ops dictionary
+        Methods: Delete all features identified with this particular method, if all is passed, deletes all columns in
+                 the removal ops dictionary
         keys: ['missing], ['single_unique'], ['collinear'], ['id_type'], ['near_unique'], ['custom']
         """
 
