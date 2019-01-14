@@ -100,11 +100,10 @@ class FeatureSelector:
     def __repr__(self):
         return "FeatureSelector()"
 
-    """
-    Method that removes columns with missing value percentage above a threshold defined by: missing_threshold
-    """
-
     def identify_missing(self, data, missing_threshold, json_file=False):
+        """
+        Method that removes columns with missing value percentage above a threshold defined by: missing_threshold
+        """
 
         self.missing_threshold = missing_threshold
 
@@ -133,11 +132,11 @@ class FeatureSelector:
             print(histogram_json)
             histogram_json.to_json('JSON/missing_values_plot.json', orient='split')
 
-    """
-    Method for visualization of missing values
-    """
-
     def plot_missing(self):
+
+        """
+        Method for visualization of missing values
+        """
 
         if self.missing_stats is None:
             raise NotImplementedError("No missing data, or the identify missing method was not ran")
@@ -154,11 +153,11 @@ class FeatureSelector:
 
         plt.show()
 
-    """
-    Method to identify columns with single unique values, meaning they have no predictive power
-    """
-
     def identify_single_unique(self, data, json_file=False):
+
+        """
+        Method to identify columns with single unique values, meaning they have no predictive power
+        """
 
         # Calculates the unique counts in each column
         unique_counts = data.nunique()
@@ -192,11 +191,11 @@ class FeatureSelector:
             histogram_json.to_json('JSON/unique_value_plot.json', orient='split')
             print(histogram_json)
 
-    """
-    Histogram of # of unique values in each column
-    """
-
     def plot_single_unique(self):
+
+        """
+        Histogram of # of unique values in each column
+        """
 
         if self.unique_stats is None:
             raise NotImplementedError("No features are unique, or single unique method was not ran.")
@@ -214,18 +213,18 @@ class FeatureSelector:
 
         plt.show()
 
-    """
-    Identify highly collinear features.  Collinear features highly reduce predictive powers.
-
-    Reference: https://www.quora.com/Why-is-multicollinearity-bad-in-laymans-terms-In-feature-selection-for-a-
-    regression-model-intended-for-use-in-prediction-why-is-it-a-bad-thing-to-have-multicollinearity-or-highly-
-    correlated-independent-variables
-
-    Identifies any columns of data with highly correlated data, correlation threshold is determined by using
-    using the correlation_threshold.
-    """
-
     def identify_collinear(self, data, correlation_threshold, json_file=False):
+
+        """
+        Identify highly collinear features.  Collinear features highly reduce predictive powers.
+
+        Reference: https://www.quora.com/Why-is-multicollinearity-bad-in-laymans-terms-In-feature-selection-for-a-
+        regression-model-intended-for-use-in-prediction-why-is-it-a-bad-thing-to-have-multicollinearity-or-highly-
+        correlated-independent-variables
+
+        Identifies any columns of data with highly correlated data, correlation threshold is determined by using
+        using the correlation_threshold.
+        """
 
         self.correlation_threshold = correlation_threshold
 
@@ -313,16 +312,17 @@ class FeatureSelector:
 
         plt.show()
 
-    """
-    Removes binary, trinary, etc. columns that are mostly one value 
-
-    threshold: % of total being equal to 1.  For a column with 100 examples, at a threshold of 0.03 (3%), any columns
-    with less than 3% of values being 1 or greater than 97% of values being 1 will be set for deletion.
-
-    DOES NOT FILTER OUT MULTI-CLASS CATEGORIES AT THE MOMENT
-    """
-
     def remove_near_unique(self, data, threshold, json_file=False):
+
+        """
+        Removes binary, trinary, etc. columns that are mostly one value
+
+        threshold: % of total being equal to 1.  For a column with 100 examples, at a threshold of 0.03 (3%), any columns
+        with less than 3% of values being 1 or greater than 97% of values being 1 will be set for deletion.
+
+        DOES NOT FILTER OUT MULTI-CLASS CATEGORIES AT THE MOMENT
+        """
+
         drop = []
         positives = []
 
@@ -352,11 +352,11 @@ class FeatureSelector:
             near_unique.to_json('data/near_unique_plot.json', orient='split')
             print(near_unique)
 
-    """
-    Plots the near unique histogram, showing how the positive class is distributed
-    """
-
     def plot_near_unique(self):
+
+        """
+        Plots the near unique histogram, showing how the positive class is distributed
+        """
 
         if self.record_near_unique is None:
             raise NotImplementedError('No near unique values, perhaps the method was not ran')
@@ -373,11 +373,11 @@ class FeatureSelector:
 
         plt.show()
 
-    """
-    Allows user to add additional features to the removal list
-    """
-
     def identify_feature(self, data, col_name):
+
+        """
+        Allows user to add additional features to the removal list
+        """
 
         if col_name in list(data):
             self.removal_ops['custom'].append(col_name)
@@ -385,11 +385,12 @@ class FeatureSelector:
         else:
             print("Column name not found!")
 
-    """
-    Removes feature(s) from the removal list if the operator decides that the feature is important
-    """
-
     def readd_feature(self, col_name):
+
+        """
+        Removes feature(s) from the removal list if the operator decides that the feature is important
+        """
+
         # Iterate through all the keys in the dictionary
         for key in self.removal_ops.keys():
             # If the col_name is found in one of the removal ops
@@ -400,11 +401,11 @@ class FeatureSelector:
                     if col_names == col_name:
                         del self.removal_ops[key][i]
 
-    """
-    Prints out a list of all the variables set for removal
-    """
-
     def check_identified(self):
+
+        """
+        Prints out a list of all the variables set for removal
+        """
 
         # Identifies all variables set for deletion
         all_identified = list(chain(*list(self.removal_ops.values())))
@@ -413,15 +414,14 @@ class FeatureSelector:
 
         return all_identified
 
-    """
-    Removes the columns set for removal with accordance to the specific method.
-
-    Methods: Delete all features identified with this particular method, if all is passed, deletes all columns in the
-             removal ops dictionary
-       keys: ['missing], ['single_unique'], ['collinear'], ['id_type'], ['near_unique'], ['custom']
-    """
-
     def removal(self, data, methods):
+        """
+        Removes the columns set for removal with accordance to the specific method.
+
+        Methods: Delete all features identified with this particular method, if all is passed, deletes all columns in the
+                 removal ops dictionary
+        keys: ['missing], ['single_unique'], ['collinear'], ['id_type'], ['near_unique'], ['custom']
+        """
 
         features_to_drop = []
 
@@ -456,6 +456,25 @@ class FeatureSelector:
         self.features_removed = features_to_drop
 
         print('Removed {} features.  The new data has {} features.'.format(len(features_to_drop), data.shape[1]))
+        return data, self.features_removed
+
+    @staticmethod
+    def online_removal(data, features_to_drop):
+        """
+        Feature removal online to ensure the ML models are receiving correct number of inputs
+
+        Inputs
+             ---
+                       data: Data from SCADA
+           features_to_drop: Useless features identified from previous
+
+
+        Returns
+             ---
+                      data:  Data with "features_to_drop" removed.
+        """
+        data = data.drop(columns=features_to_drop)
+
         return data
 
     """
@@ -476,11 +495,12 @@ class FeatureSelector:
 
     # Methods below this line are only applicable to Suncor Pipeline
 
-    """
-    Deletes custom columns
-    """
-
     def remove_idtype(self, data, col_name="name"):
+
+        """
+        Deletes custom columns
+        """
+
         drop = []
 
         # If a list of values to drop was given
@@ -509,12 +529,11 @@ class FeatureSelector:
 
 if __name__ == "__main__":
 
-    day_minutes = 60 * 24
+    # day_minutes = 60 * 24
+    #
+    # Data, Original_data = data_loader('data/downsampled_data.csv', chunk_size=day_minutes, num_of_chunks=1000)
 
-    Data, Original_data = data_loader('data/downsampled_data.csv', day_minutes, 1000)
-
-    # Load the instrument list and data type that corresponds to each IDType
-    instr_list = pd.read_csv('data/AttributeTypes.csv')
+    Data = pd.read_csv('test_datasets/CoffeeBeanData.csv')
 
     # Builds Feature Selector object
     feature_selection = FeatureSelector()
@@ -525,7 +544,7 @@ if __name__ == "__main__":
     input: 0 (missing value method), % missing, data file from previously
     """
     # Identifies missing values
-    feature_selection.identify_missing(Data, 0.3, json_file=True)
+    feature_selection.identify_missing(Data, missing_threshold=0.3, json_file=False)
     feature_selection.plot_missing()
 
     """
@@ -534,7 +553,7 @@ if __name__ == "__main__":
     input: 1 (unique value method), data file from previously
     """
     # Identifies unique values
-    feature_selection.identify_single_unique(Data, json_file=True)
+    feature_selection.identify_single_unique(Data, json_file=False)
     feature_selection.plot_single_unique()
 
     """
@@ -543,7 +562,7 @@ if __name__ == "__main__":
     input: 2 (collinear value method), correlation, data file from previously
     """
     # Identifies missing values
-    feature_selection.identify_collinear(Data, 0.90, json_file=True)
+    feature_selection.identify_collinear(Data, correlation_threshold=0.90, json_file=False)
     feature_selection.plot_collinear()
 
     """
@@ -552,7 +571,7 @@ if __name__ == "__main__":
     input: 3 (near unique method), amount of one class, data file from previously
     """
     # Identifies near unique columns
-    feature_selection.remove_near_unique(Data, 0.02, json_file=True)
+    feature_selection.remove_near_unique(Data, threshold=0.02, json_file=False)
     feature_selection.plot_near_unique()
 
     """
@@ -577,4 +596,10 @@ if __name__ == "__main__":
     """
     Remove the features
     """
-    feature_selection.removal(Data, 'all')
+    Data, features_removed = feature_selection.removal(Data, 'all')
+
+    # Online feature selection test
+    Data2 = pd.read_csv('test_datasets/CoffeeBeanData.csv')
+    Data2 = feature_selection.online_removal(Data2, features_removed)
+
+    assert(Data2.shape[1] == Data.shape[1])
