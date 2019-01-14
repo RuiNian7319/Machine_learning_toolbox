@@ -364,8 +364,8 @@ class LiveAnomalyDetection:
         # If no unique columns was passed, 
         if columns is None:
             # Ensure shape compatibility
-            assert(data.shape[1] == len(mean))
-            assert(data.shape[1] == len(std))
+            # assert(data.shape[1] == len(mean))
+            # assert(data.shape[1] == len(std))
 
             # Name of columns
             names = list(data)
@@ -383,8 +383,8 @@ class LiveAnomalyDetection:
         # If unique columns was given        
         else:
             # Ensure shape compatibility
-            assert(len(columns) == len(mean))
-            assert(len(columns) == len(std))
+            # assert(len(columns) == len(mean))
+            # assert(len(columns) == len(std))
 
             # Name of columns
             names = deepcopy(columns)
@@ -424,8 +424,8 @@ class LiveAnomalyDetection:
         # Do modified Z-score on whole data
         if columns is None:
             # Ensure shape compatibility
-            assert(data.shape[1] == len(median))
-            assert(data.shape[1] == len(mad))
+            # assert(data.shape[1] == len(median))
+            # assert(data.shape[1] == len(mad))
 
             # Make names for each label column
             names = list(data)
@@ -443,8 +443,8 @@ class LiveAnomalyDetection:
 
         else:
             # Ensure shape compatibility
-            assert(len(columns) == len(median))
-            assert(len(columns) == len(mad))
+            # assert(len(columns) == len(median))
+            # assert(len(columns) == len(mad))
 
             # Make names for each label column
             names = deepcopy(columns)
@@ -480,7 +480,7 @@ class LiveAnomalyDetection:
 
         if columns is None:
             # Ensure shapes are compatible
-            assert(data.shape[1] == len(bounds))
+            # assert(data.shape[1] == len(bounds))
 
             names = list(data)
             for i, name in enumerate(names):
@@ -498,7 +498,7 @@ class LiveAnomalyDetection:
         # If a unique set of columns is given
         else:
             # Ensure shapes are compatible
-            assert(data.shape[1] == len(bounds))
+            # assert(data.shape[1] == len(bounds))
 
             names = deepcopy(columns)
             for i, name in enumerate(names):
@@ -519,15 +519,9 @@ class LiveAnomalyDetection:
 if __name__ == "__main__":
     
     # Load filtered data
-    Data = pd.read_csv('filtered_data/data.csv')
-    print('The original data |has {} training examples'.format(data.shape[0]))
+    data = pd.read_csv('test_datasets/CoffeeBeanData.csv')
+    print('The original data has {} training examples'.format(data.shape[0]))
 
-    # Sample a subset of the data to be representative of the whole data set, mainly used to save memory for
-    # Jupyter files
-    Data.sort_index(inplace=True)
-    Data.reset_index(drop=True, inplace=True)
-    print('The sampled data has {} examples and {} features.'.format(Data.shape[0], Data.shape[1]))
-    
     # Build the stat_analysis object
     stat_analysis = AnomalyDetection()
 
@@ -543,6 +537,21 @@ if __name__ == "__main__":
 
     # data_iqr is the new output file [Labels | Features] using IQR, anomaly_count_iqr is the amount of anomalous data
     data_iqr, count_iqr, Bounds, cols_iqr = stat_analysis.iqr_method(data, columns=['175643367_630', '175643368_630'])
-                   
+
+    """
+    Online evaluation
+    """
+
+    Data2 = pd.read_csv('test_datasets/CoffeeBeanData.csv')
+
     # Live anomaly detection
     live_stat_analysis = LiveAnomalyDetection()
+
+    # Live z-score labelling
+    data_z2 = live_stat_analysis.live_z_score(Data2, Mean, std_dev, thres_z, cols_z)
+
+    # Live mod z-score labelling
+    data_modz2 = live_stat_analysis.live_mod_z(Data2, Median, MAD, thres_modz, cols_modz)
+
+    # Live IQR labelling
+    data_iqr2 = live_stat_analysis.live_iqr(Data2, Bounds, cols_iqr)
