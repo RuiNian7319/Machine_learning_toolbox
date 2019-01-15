@@ -363,6 +363,7 @@ class LiveAnomalyDetection:
         Returns
             ---
                   data: Labeled data
+            z_outliers:
         """
         self.mean = mean
         self.std = std
@@ -402,11 +403,13 @@ class LiveAnomalyDetection:
             for i, col in enumerate(columns):
                 self.z_score_labels.loc[:, col + "_label"] = [1 if abs((y - mean[i]) / std[i]) > threshold
                                                               else 0 for y in data.loc[:, col]]
-                   
+
+        z_outliers = self.z_score_labels.sum()
+
         # Concatenate the labels with the features
         data = pd.concat([self.z_score_labels, data], axis=1)
 
-        return data
+        return data, z_outliers
     
     def live_mod_z(self, data, median, mad, threshold, columns=None):
         """
@@ -422,6 +425,7 @@ class LiveAnomalyDetection:
         Returns
             ---
                   data: Labeled data
+         modz_outliers:
         """
 
         self.median = median
@@ -464,9 +468,11 @@ class LiveAnomalyDetection:
                 self.mod_z_score_labels.loc[:, col + "_label"] = [1 if abs(0.6745 * (y - self.median[i]) / self.mad[i])
                                                                   > threshold else 0 for y in data.loc[:, col]]
 
+        modz_outliers = self.mod_z_score_labels.sum()
+
         data = pd.concat([self.mod_z_score_labels, data], axis=1)
         
-        return data
+        return data, modz_outliers
     
     def live_iqr(self, data, bounds, columns=None):
         """
@@ -480,6 +486,7 @@ class LiveAnomalyDetection:
         Returns
             ---
                   data: Labeled data
+          iqr_outliers:
         """
 
         self.bounds = bounds
@@ -517,9 +524,11 @@ class LiveAnomalyDetection:
                 self.iqr_outliers.loc[:, col + "_label"] = [1 if (y < self.bounds[0, i] or y > self.bounds[1, i]) else 0
                                                             for y in data.loc[:, col]]
 
+        iqr_outliers = self.iqr_outliers.sum()
+
         data = pd.concat([self.iqr_outliers, data], axis=1)
         
-        return data
+        return data, iqr_outliers
 
 
 if __name__ == "__main__":
@@ -548,16 +557,16 @@ if __name__ == "__main__":
     Online evaluation
     """
 
-    Data2 = pd.read_csv('test_datasets/CoffeeBeanData2.csv')
+    Data2 = pd.read_csv('test_datasets/CoffeeBeanDatav2.csv')
 
     # Live anomaly detection
     live_stat_analysis = LiveAnomalyDetection()
 
     # Live z-score labelling
-    data_z2 = live_stat_analysis.live_z_score(Data2, Mean, std_dev, thres_z, cols_z)
+    data_z2, count_z2 = live_stat_analysis.live_z_score(Data2, Mean, std_dev, thres_z, cols_z)
 
     # Live mod z-score labelling
-    data_modz2 = live_stat_analysis.live_mod_z(Data2, Median, MAD, thres_modz, cols_modz)
+    data_modz2, count_modz2 = live_stat_analysis.live_mod_z(Data2, Median, MAD, thres_modz, cols_modz)
 
     # Live IQR labelling
-    data_iqr2 = live_stat_analysis.live_iqr(Data2, Bounds, cols_iqr)
+    data_iqr2, count_iqr2 = live_stat_analysis.live_iqr(Data2, Bounds, cols_iqr)
