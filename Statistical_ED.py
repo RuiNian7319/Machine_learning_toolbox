@@ -15,6 +15,8 @@ import seaborn as sns
 
 import pandas as pd
 
+from copy import deepcopy
+
 import gc
 
 import warnings
@@ -203,6 +205,8 @@ class AnomalyDetection:
 
         else:
 
+            self.median = []
+
             # Make names for each label column
             names = deepcopy(columns)
 
@@ -215,7 +219,9 @@ class AnomalyDetection:
                 # Find the median of that column
                 median = data.median(axis=0)[col]
                 median_absolute_deviation = np.median([np.abs(y - median) for y in data.loc[:, col]])
+
                 self.mad.append(median_absolute_deviation)
+                self.median.append(median)
 
             for i, col in enumerate(columns):
                 median = data.median(axis=0)[col]
@@ -517,32 +523,32 @@ class LiveAnomalyDetection:
 
 
 if __name__ == "__main__":
-    
+
     # Load filtered data
-    data = pd.read_csv('test_datasets/CoffeeBeanData.csv')
-    print('The original data has {} training examples'.format(data.shape[0]))
+    Data1 = pd.read_csv('test_datasets/CoffeeBeanData.csv')
+    print('The original data has {} training examples'.format(Data1.shape[0]))
 
     # Build the stat_analysis object
     stat_analysis = AnomalyDetection()
 
     # data_z is the new output file [Labels | Features] using Z score, anomaly_count_z is the amount of anomalous data
-    data_z, count_z, Mean, std_dev, cols_z, thres_z = stat_analysis.z_score_method(data, columns=['175643344_630',
-                                                                                                  '175643348_630'])
+    data_z, count_z, Mean, std_dev, cols_z, thres_z = stat_analysis.z_score_method(Data1, columns=['175642864_630',
+                                                                                                   '175642863_630'])
 
     # data_modz is the new file [Labels | Features] using mod Z score, anomaly_count_modz is the amount of
     # anomalous data
-    data_modz, count_modz, Median, MAD, cols_modz, thres_modz = stat_analysis.mod_z_method(data,
-                                                                                           columns=['175643269_630',
-                                                                                                    '175643348_630'])
+    data_modz, count_modz, Median, MAD, cols_modz, thres_modz = stat_analysis.mod_z_method(Data1,
+                                                                                           columns=['175642864_630',
+                                                                                                    '175642863_630'])
 
     # data_iqr is the new output file [Labels | Features] using IQR, anomaly_count_iqr is the amount of anomalous data
-    data_iqr, count_iqr, Bounds, cols_iqr = stat_analysis.iqr_method(data, columns=['175643367_630', '175643368_630'])
+    data_iqr, count_iqr, Bounds, cols_iqr = stat_analysis.iqr_method(Data1, columns=['175642864_630', '175642863_630'])
 
     """
     Online evaluation
     """
 
-    Data2 = pd.read_csv('test_datasets/CoffeeBeanData.csv')
+    Data2 = pd.read_csv('test_datasets/CoffeeBeanData2.csv')
 
     # Live anomaly detection
     live_stat_analysis = LiveAnomalyDetection()
