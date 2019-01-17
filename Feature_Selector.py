@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from copy import deepcopy
-from Data_loader import data_loader
+# from Data_loader import data_loader
 
 import random
 
@@ -562,7 +562,7 @@ if __name__ == "__main__":
     input: 2 (collinear value method), correlation, data file from previously
     """
     # Identifies missing values
-    feature_selection.identify_collinear(Data, correlation_threshold=0.90, json_file=False)
+    feature_selection.identify_collinear(Data, correlation_threshold=0.97, json_file=False)
     feature_selection.plot_collinear()
 
     """
@@ -571,7 +571,7 @@ if __name__ == "__main__":
     input: 3 (near unique method), amount of one class, data file from previously
     """
     # Identifies near unique columns
-    feature_selection.remove_near_unique(Data, threshold=0.02, json_file=False)
+    feature_selection.remove_near_unique(Data, threshold=0.05, json_file=False)
     feature_selection.plot_near_unique()
 
     """

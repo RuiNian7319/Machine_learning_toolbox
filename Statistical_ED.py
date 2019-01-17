@@ -541,17 +541,17 @@ if __name__ == "__main__":
     stat_analysis = AnomalyDetection()
 
     # data_z is the new output file [Labels | Features] using Z score, anomaly_count_z is the amount of anomalous data
-    data_z, count_z, Mean, std_dev, cols_z, thres_z = stat_analysis.z_score_method(Data1, columns=['175642864_630',
-                                                                                                   '175642863_630'])
+    data_z, count_z, Mean, std_dev, cols_z, thres_z = stat_analysis.z_score_method(Data1, columns=['175642862_630',
+                                                                                                   '175642865_630'])
 
     # data_modz is the new file [Labels | Features] using mod Z score, anomaly_count_modz is the amount of
     # anomalous data
     data_modz, count_modz, Median, MAD, cols_modz, thres_modz = stat_analysis.mod_z_method(Data1,
-                                                                                           columns=['175642864_630',
-                                                                                                    '175642863_630'])
+                                                                                           columns=['175642862_630',
+                                                                                                    '175642865_630'])
 
     # data_iqr is the new output file [Labels | Features] using IQR, anomaly_count_iqr is the amount of anomalous data
-    data_iqr, count_iqr, Bounds, cols_iqr = stat_analysis.iqr_method(Data1, columns=['175642864_630', '175642863_630'])
+    data_iqr, count_iqr, Bounds, cols_iqr = stat_analysis.iqr_method(Data1, columns=['175642862_630', '175642865_630'])
 
     """
     Online evaluation
