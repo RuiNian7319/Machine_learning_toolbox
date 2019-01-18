@@ -534,7 +534,7 @@ class LiveAnomalyDetection:
 if __name__ == "__main__":
 
     # Load filtered data
-    Data1 = pd.read_csv('test_datasets/CoffeeBeanData.csv')
+    Data1 = pd.read_csv('test_datasets/filtered_data.csv')
     print('The original data has {} training examples'.format(Data1.shape[0]))
 
     # Build the stat_analysis object
@@ -557,7 +557,7 @@ if __name__ == "__main__":
     Online evaluation
     """
 
-    Data2 = pd.read_csv('test_datasets/CoffeeBeanDatav2.csv')
+    Data2 = pd.read_csv('test_datasets/online_val.csv')
 
     # Live anomaly detection
     live_stat_analysis = LiveAnomalyDetection()

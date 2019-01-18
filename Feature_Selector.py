@@ -263,8 +263,8 @@ class FeatureSelector:
         self.record_collinear = record_collinear
         self.removal_ops['collinear'] = drop
 
-        print("{} features with a correlation greater than {}. \n".format(len(self.removal_ops['collinear']),
-                                                                          correlation_threshold * 100))
+        print("{} features with a correlation greater than {}%. \n".format(len(self.removal_ops['collinear']),
+                                                                           correlation_threshold * 100))
         if json_file:
             collinear_json = self.corr_matrix.loc[list(self.record_collinear['corr_feature']),
                                                   list(self.record_collinear['drop_feature'])]
@@ -344,6 +344,9 @@ class FeatureSelector:
         self.record_near_unique = pd.DataFrame([drop, positives]).T.rename(columns={0: 'features', 1: 'pos'})
 
         self.removal_ops['near_unique'] = drop
+
+        print('{} features near unique with threshold {}%'.format(len(self.removal_ops['near_unique']),
+                                                                  threshold * 100))
 
         if json_file:
             bin_json = np.linspace(0, 1, 21)
@@ -599,7 +602,14 @@ if __name__ == "__main__":
     Data, features_removed = feature_selection.removal(Data, 'all')
 
     # Online feature selection test
-    Data2 = pd.read_csv('test_datasets/CoffeeBeanData.csv')
+    Data2 = pd.read_csv('test_datasets/CoffeeBeanDatav2.csv')
     Data2 = feature_selection.online_removal(Data2, features_removed)
 
     assert(Data2.shape[1] == Data.shape[1])
+
+    # import json
+    #
+    # json_featurelist = json.dumps(feature_selection.removal_ops, separators=(',', ':'))
+    # json_featurelist = json.loads(json_featurelist)
+    # with open('./data.json', 'w') as outfile:
+    #     json.dump(json_featurelist, outfile)
