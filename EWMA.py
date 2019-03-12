@@ -32,7 +32,7 @@ def ewma(beta, vector):
         if j == (len(ewma_num) - 1):
             break
 
-        ewma_num[j + 1] = beta * ewma_num[j] + (1 - beta) * numbers[j + 1]
+        ewma_num[j + 1] = beta * ewma_num[j] + (1 - beta) * vector[j + 1]
 
         # Bias correction
         if j == 0:
