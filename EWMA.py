@@ -13,6 +13,7 @@ def ewma(beta, vector):
     Description
        ---
           Exponential smoothing
+          Note: Exponentially smoothed vector has 0 for the first value.  During implementation, omit first value.
 
     Inputs
        ---
